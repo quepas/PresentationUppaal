@@ -25,8 +25,8 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \subsection{Quick look}
 %-------------------------------------------------------------------------
-\begin{frame}
-	Uppaal is a model checker for real-time systems. What we can with it?
+\begin{frame}{Uppaal. What is it?}
+	Uppaal is a model checker for real-time systems (in mind of embedded systems). What we can do with it?
 	
 	\begin{enumerate}
 		\item Modeling
@@ -43,10 +43,23 @@
 
 \end{frame}
 
+\begin{frame}{Where to use?}
+	``Any system can be analyzed using a model checker, as long as it has \textit{states} and \textit{transitions} between states'' (from Chapter 1: A First Introduction to Uppaal by Frits Vaandrager) \newline
+	
+	Reactive systems such as:
+	\begin{itemize}
+		\item Hardware components
+		\item Embedded controllers
+		\item Network protocols
+		\item Others...
+	\end{itemize}
+	Whenever there is need to handle real-time issues (the timing of transitions).
+	
+\end{frame}
 
 \subsection{History}
 %-------------------------------------------------------------------------
-\begin{frame}
+\begin{frame}{Brief history}
 	Uppaal was started by Uppsala University, Sweden and Aalborg University, Denmark.
 	
 	Timeline of development:
@@ -58,6 +71,10 @@
 		\item July 1, 2014 - preview release (v 4.1.19)
 	\end{itemize}
 	
+\end{frame}
+
+\subsection{Versions}
+\begin{frame}{Uppaal variations}
 	Versions: Windows, Mac, Linux, 32/64 bits
 	
 	Available licenses:
@@ -67,9 +84,10 @@
 	\end{itemize}
 \end{frame}
 
-
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 \section{The tool}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\subsection{Uppaal GUI}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{Uppaal GUI - Main parts}
 \vspace{-10mm}
@@ -90,7 +108,7 @@
 \end{columns}		
 \end{frame}
 
-\begin{frame}{Uppaal GUI - Editor control}
+\begin{frame}{Uppaal GUI - System editor}
 	\vspace{-10mm}
 	\begin{columns}
 		\begin{column}{0.8\textwidth}
@@ -106,12 +124,13 @@
 				\item Add location
 				\item Add edge
 				\item Add nail
+				\item Syntax check (for global, local, system declarations)
 			\end{itemize}
 		\end{column}
 	\end{columns}		
 \end{frame}
 
-\begin{frame}{Uppaal GUI - Simulation control}
+\begin{frame}{Uppaal GUI - Simulator}
 	\vspace{-5mm}
 	\begin{columns}
 		\begin{column}{0.8\textwidth}
@@ -131,7 +150,7 @@
 	\end{columns}		
 \end{frame}
 
-\begin{frame}{Uppaal GUI - Verification}
+\begin{frame}{Uppaal GUI - Verifier}
 	\vspace{-5mm}
 	\begin{columns}
 		\begin{column}{0.8\textwidth}
@@ -149,6 +168,125 @@
 			\end{itemize}
 		\end{column}
 	\end{columns}		
+\end{frame}
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+\subsection{Project structure}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{frame}{Project}
+	All projects consist of:
+		
+	\begin{itemize}
+		\item Global declaration for whole project
+		\item Processes modelled using timed automata
+		\item Local declaration for each process
+		\item System description
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Model/system}
+	
+	A Uppaal model (called system) is defined as a composition of a number of basic components (called automata or processes). Automata are diagrams with states
+	(called locations) and transitions between states (called edges).\newline
+
+\end{frame}
+
+\begin{frame}{Process/automata}
+	Each automaton has at most one initial location, marked
+	by a double circle.
+\end{frame}
+
+\begin{frame}{Location/state}
+
+\end{frame}
+
+\begin{frame}{System declaration}
+	
+\end{frame}
+
+\begin{frame}{Edge/transition}
+	Choices for which the model does not specify how they are resolved are called
+	nondeterministic.
+\end{frame}
+
+\begin{frame}{Channels}
+	In order to model the synchronization between tools and jobbers,
+	we use the notion of (synchronization) channels from Uppaal. Once “a” has been
+	declared as a channel, transitions can be labeled with either a! or a?. This can be
+	done by double clicking (within the Editor) transitions with the Select tool, and then
+	writing a! or a? in the Sync field. When two automata synchronize on channel “a”,
+	this means that an a! transition of one automaton occurs simultaneously with an
+	a? transition of another automaton. An a! or a? transition can never occur on its
+	own: a! always has to synchronize with a?, and vice versa. If there is one automaton
+	S that can do an a! but two automata R1 and R2 that can do an a?, then there is
+	a nondeterministic choice and S can synchronize with either R1 or R2. The other
+	automaton has do something else or has to wait until the next a! synchronization
+	will be offered.
+\end{frame}
+
+\begin{frame}{Variables}
+	
+\end{frame}
+
+\begin{frame}{Verification}
+
+\end{frame}
+
+\begin{frame}{Queries (part I)}
+	Query is a property that may or may not hold for a given model. The Verifier can establish whether a Query is \textbf{satisfied} or \textbf{not}.\newline
+	Notation:
+	\begin{itemize}
+		\item $A[]$ - for all reachable states...
+		\item $E<>$ - there exists a reachable state...
+	\end{itemize}
+	Simple queries are in form of $A[] e$ and $E<> e$ where $e$ is an expression build from \textbf{boolean combination} of \textbf{atomic propositions}.
+\end{frame}
+
+\begin{frame}{Queries (part II)}
+	Atomic propositions can be of the form $A.c$, for $A$ an automaton and $c$ a location. Such a proposition is true in a global state of the model if in this state automaton $A$ is in location $c$.\newline
+	
+	\begin{tabular}{|c|c|c|}
+		\hline \textbf{Expression} & \textbf{Name} & \textbf{True when...} \\ 
+		\hline $e\text{ }\&\&\text{ }f$ & and & $e$ and $f$ evaluate to \textbf{true}	 \\ 
+		\hline $e\text{ }||\text{ }f$ & or & $e$ or $f$ evaluate to \textbf{true} \\ 
+		\hline $e\text{ }==\text{ }f$ & equality & $e$ and $f$ evaluate to the same value \\ 
+		\hline $e\text{ }imply\text{ }f$ & implication & $e$ evaluate to \textbf{false} or $f$ evaluate to \textbf{true}\\ 
+		\hline $e\text{ }not\text{ }f$ & negation & $e$ evaluates to \textbf{false} \\ 
+		\hline 
+	\end{tabular} 
+
+\end{frame}
+
+\begin{frame}{Query examples}
+	\begin{itemize}
+		\item $A[] \text{ not deadlock}$
+		\item $E<> \text{Process\_1.C}$
+		\item $E<> (\text{Process\_1.C } \&\& \text{ Process\_2.C})$
+		
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Reasoning}
+	(!)The tool just uses brute force to explore all the reachable global states of the model and to check for each of these	states whether both jobbers are working on a hard job.
+\end{frame}
+
+\begin{frame}{Diagnostic traces}
+	
+	(!)Uppaal can also provide a concrete example that illustrates why the property holds (for $E<>$ properties) or not (for $A[]$ properties, so called: \textit{counterexample}).\newline
+	
+	(!)In the case of $E<>$ properties that do not hold, or $A[]$ properties that hold, Uppaal can only report that it exhaustively checked all the reachable states of the model and didn’t find anything.\newline
+	
+	(!)We choose under \textit{Options} the entry \textit{Diagnostic Trace} and then select the option \textit{Shortest}. Simulator will then show found diagnostic trace.
+\end{frame}
+
+\begin{frame}{Saving data}
+	We can save various data:
+	
+	\begin{itemize}
+		\item Model/system - \textit{*.xml} file
+		\item Queries - \textit{*.q} file
+		\item Traces (binary) - \textit{*.xtr} file
+	\end{itemize}
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
