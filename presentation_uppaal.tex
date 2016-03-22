@@ -42,7 +42,7 @@
 \end{frame}
 
 \begin{frame}{Where to use?}
-	``Any system can be analyzed using a model checker, as long as it has \textit{states} and \textit{transitions} between states'' (from Chapter 1: A First Introduction to Uppaal by Frits Vaandrager) \newline
+	``Any system can be analysed using a model checker, as long as it has \textit{states} and \textit{transitions} between states'' (from Chapter 1: A First Introduction to Uppaal by Frits Vaandrager) \newline
 	
 	Reactive systems such as:
 	\begin{itemize}
@@ -60,7 +60,7 @@
 \begin{frame}{Brief history}
 	Uppaal was started by Uppsala University, Sweden and Aalborg University, Denmark.
 	
-	Timeline of development:
+	Time-line of development:
 	\begin{itemize}
 		\item 1995 - project started
 		\item 1999 - first beta
@@ -117,7 +117,7 @@
 		
 		\begin{column}{0.3\textwidth}
 			\begin{itemize}
-				\item Name: Template (defualt)
+				\item Name: Template (default)
 				\item Select
 				\item Add location
 				\item Add edge
@@ -169,52 +169,152 @@
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
-\subsection{Project structure}
+\subsection{System structure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{frame}{Project}
-	All projects consist of:
-		
-	\begin{itemize}
-		\item Global declaration for whole project
-		\item Processes modelled using timed automata
-		\item Local declaration for each process
-		\item System description
-	\end{itemize}
-\end{frame}
-
-\begin{frame}{Model/system}
+\begin{frame}{System/model/project}
+%We build so called system/model/project.
 	
-	A Uppaal model (called system) is defined as a composition of a number of basic components (called automata or processes). Automata are diagrams with states
-	(called locations) and transitions between states (called edges).\newline
-
+	\begin{columns}
+		\begin{column}{0.7\textwidth}
+			All systems consist of:	
+			\begin{itemize}
+				\item Global declaration for whole system;
+				\item Concurrent processes modelled using timed automata (here \textit{P0} and \textit{P1});
+				\item Local declaration for each process;
+				\item System description.
+			\end{itemize}
+		\end{column}
+		
+		\begin{column}{0.37\textwidth}
+			\begin{figure}[H]
+				\includegraphics[scale=1]{img/uppaal_project.png}
+			\end{figure}
+		\end{column}
+	\end{columns}
 \end{frame}
 
 \begin{frame}{Process/automata}
-	Each automaton has at most one initial location, marked
-	by a double circle.
 	
-	(!)Deadlock - is when no further transitions are possible and therefore a deadlock state
-	has been reached.
+	Process is a timed-automata represent as diagram with states
+	(called locations) and transitions between states (called edges). Timed-automata is finite state machine with time (clocks).\newline
+
+	Each process has only one \textbf{initial location}.\newline
+\end{frame}
+
+\begin{frame}{Time and clocks}
+	(!) Are the way to handle time in Uppaal. Time is continuous and the clocks measure time progress. It is allowed to test the value of a clock or to reset it. Time will progress globally at the same pace for the whole system. A system in Uppaal
+	
+	It allows to track:
+	\begin{itemize}
+		\item The ordering of events
+		\item How fast some events occur
+	\end{itemize}
+	
+	In Uppaal we can specify upper bounds on timing, using so-called “invariants”.
+	When we double click the location work easy, a window appears with a field In-variant.
+	
+	The invariant is a progress condition.
+	
+	If we want to specify lower and upper bounds on the time that an automaton may
+	stay in a certain location, we can do this in Uppaal using so-called clocks. A clock
+	is a special type of variable, whose domain consists of the set of non-negative real
+	numbers. Just like other variables, clocks can be declared either as a global variable
+	(which can be tested and updated by all automata) or as a local variable (which can
+	only be used by one automaton). In the initial state, all clocks have value 0. When
+	an automaton is waiting in a location and time elapses then the values of its clocks
+	increase. More precisely, when t time units pass then the values of all clocks in the
+	model increase with t. Thus, all clocks are “perfect” and increase at exactly the same
+	rate as real-time. In reality, of course, no clock is 100% perfect, but in our modeling
+	language it is convenient to use the idealization of perfect clocks to specify upper
+	and lower bounds on the timing of transitions.
 \end{frame}
 
 \begin{frame}{Location/state}
+	\begin{figure}[H]
+		\includegraphics[scale=1]{img/uppaal_locations.png}
+	\end{figure}
 	
-	If a location is Urgent then this means that time can not elapse within this
-	location, and hence a transition to another location will occur immediately.
+	Location represents state of the system. There are four types of locations:
+	\begin{itemize}
+		\item Initial (at most one initial location in each automaton);
+		\item Normal (with or without \textbf{invariants});
+		\item Urgent (time cannot elapse in this location, so transition to another location must occur \textbf{immediately});
+		\item Committed.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Edge/transition (part I)}
+	An edge/transition connects two locations. Edges can have four types of annotations:
 	
-	Each automaton has at most one initial location, marked
-	by a double circle.
+	\begin{itemize}
+		\item Selection - binds a given identifier to a value in a given range; allowed types: \textit{boundend integers}, \textit{scalar sets}; defined here identifiers will shadow local/global variables.
+		\item Guard - transition is enabled only if guard's expression evaluates to \textbf{true} and consists of:
+		\begin{itemize}
+			\item Conjunction of simple conditions on clocks;
+			\item Differences between clocks;
+			\item Boolean expressions not involving clocks.
+		\end{itemize}
+		\item Synchronization - transition labelled with complementary actions (e.g. \textit{a!} and \textit{a?}) will synchronize over a common channel (here channel \textit{a})
+	\end{itemize}
+	%Now, remove the invariant and change the guard to x >= 2 and x <= 3. As you can see the system may take the same transitions as before, but there is now a deadlock: the system may be stuck if it does not take the transition after 3 time units.
+	
+\end{frame}
+
+\begin{frame}{Edge/transition (part II)}
+	\begin{itemize}
+		\item Update - evaluate given expression when transition occur.
+	\end{itemize}	
+	
+	\begin{figure}[H]
+		\includegraphics[scale=0.8]{img/uppaal_transitions.png}
+	\end{figure}
+	Example of transitions with annotations:
+	\begin{itemize}
+		\item Selection: \textit{j : int};
+		\item Update: \textit{++i};
+		\item Synchronization: \textit{a!};
+		\item Guard: \textit{j==0}, \textit{i==1}.
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Edge/transition (part III)}
+	Without prior specification, all transitions occur instantaneously and do not take time.\newline
+	
+	When no further transition is possible we reach so called \textbf{deadlock state}.\newline
+	
+	Unspecified choice is called non-deterministic:\newline
+	\vspace{-8mm}
+	\begin{columns}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\label{img:ndc}
+				\includegraphics[scale=0.7]{img/uppaal_non_deterministic_choice.png}
+				\caption{Non-deterministic choice}
+			\end{figure}
+		\end{column}
+		\begin{column}{.5\textwidth}
+			\begin{figure}[H]
+				\label{img:dc}
+				\includegraphics[scale=0.7]{img/uppaal_deterministic_choice.png}
+				\caption{Deterministic choice}
+			\end{figure}
+		\end{column}		
+	\end{columns}
 \end{frame}
 
 \begin{frame}{Parameters}
 	
-	Parameters can be declared to have either call-by-value or call-by-reference semantics, that is, a template may have access to either a local copy of the argument or to the original. The syntax is taken from C++, where the identifier of a call-by-reference parameter is prefixed with an ampersend in the parameter declaration. Clocks and channels must always be call-by-reference parameters.
+	Template of process can have parameters with different call semantics (C++ syntax):
 	
+	\begin{itemize}
+		\item call-by-value (using local copy, e.g. \textit{int a})
+		\item call-by-reference (using original value, e.g. \textit{int\& a})
+	\end{itemize}
 	
-	Uppaal does not allow
-	data parameters for synchronization channels.
+	Clocks and channels must always be call-by-reference parameters.
+	Uppaal does not allow data parameters for synchronization channels (?).
 	
-	In template paraemetrs field: urgent chan \&get, chan \&put.
+	In template parameters field: urgent chan \&get, chan \&put.
 	When creating templates:
 	Hammer = Tool(get\_hammer, put\_hammer);
 	Mallet = Tool(get\_mallet, put\_mallet);
@@ -224,23 +324,12 @@
 	
 \end{frame}
 
-\begin{frame}{Edge/transition}
-	Choices for which the model does not specify how they are resolved are called
-	nondeterministic.\newline
-	
-	Without prior specification, transitions occur instantaneously and do not take time.\newline
-	
-	Transition have fields:
-	\begin{itemize}
-		\item Guard
-		\item Update
-	\end{itemize}
-	
-	In fields we can declare arrays, Boolean variables, define new ``record'' types and new functions.
-	
-\end{frame}
-
 \begin{frame}{Channels}
+	(!)  Uppaal offers urgent channels (defined using urgent chan) that are synchronization that must be taken when the transition is enabled, without delay. Clock conditions on these transitions are not allowed.
+	
+	(!) There is no value passing through the channels
+	
+	(!)The synchronization mechanism in Uppaal is a hand-shaking synchronization: two processes take a transition at the same time, one will have an a! and the other an a?, with a being the synchronization channel. When taking a transition, two actions are possible: assignment of variables or reset of clocks. 
 	
 	Uppaal does not allow
 	data parameters for synchronization channels.
@@ -249,14 +338,14 @@
 	
 	In order to model the synchronization between tools and jobbers,
 	we use the notion of (synchronization) channels from Uppaal. Once “a” has been
-	declared as a channel, transitions can be labeled with either a! or a?. This can be
+	declared as a channel, transitions can be labelled with either a! or a?. This can be
 	done by double clicking (within the Editor) transitions with the Select tool, and then
 	writing a! or a? in the Sync field. When two automata synchronize on channel “a”,
 	this means that an a! transition of one automaton occurs simultaneously with an
 	a? transition of another automaton. An a! or a? transition can never occur on its
 	own: a! always has to synchronize with a?, and vice versa. If there is one automaton
 	S that can do an a! but two automata R1 and R2 that can do an a?, then there is
-	a nondeterministic choice and S can synchronize with either R1 or R2. The other
+	a non-deterministic choice and S can synchronize with either R1 or R2. The other
 	automaton has do something else or has to wait until the next a! synchronization
 	will be offered.
 \end{frame}
@@ -273,7 +362,7 @@
 	
 	Variable assigned with a value outside of its domain generates ``run-time error''.\newline
 	
-	Transistion can have guards: expressions which use variables. Every transition have guard, by defualt they return \textbf{true}.\newline
+	Transition can have guards: expressions which use variables. Every transition have guard, by default they return \textbf{true}.\newline
 	
 	Uppaal does not support enumerated types.\newline
 	*
@@ -290,30 +379,6 @@
 	
 \end{frame}
 
-\begin{frame}{Time and clocks}
-	It allows to track:
-	\begin{itemize}
-		\item The ordering of events
-		\item How fast some events occur
-	\end{itemize}
-	
-	In Uppaal we can specify upper bounds on timing, using so-called “invariants”.
-	When we double click the location work easy, a window appears with a field In-variant.
-	
-	If we want to specify lower and upper bounds on the time that an automaton may
-	stay in a certain location, we can do this in Uppaal using so-called clocks. A clock
-	is a special type of variable, whose domain consists of the set of nonnegative real
-	numbers. Just like other variables, clocks can be declared either as a global variable
-	(which can be tested and updated by all automata) or as a local variable (which can
-	only be used by one automaton). In the initial state, all clocks have value 0. When
-	an automaton is waiting in a location and time elapses then the values of its clocks
-	increase. More precisely, when t time units pass then the values of all clocks in the
-	model increase with t. Thus, all clocks are “perfect” and increase at exactly the same
-	rate as real-time. In reality, of course, no clock is 100% perfect, but in our modeling
-	language it is convenient to use the idealization of perfect clocks to specify upper
-	and lower bounds on the timing of transitions.
-\end{frame}
-
 \begin{frame}{Verification}
 	
 	Whereas the Verifier has an option to compute the fastest execution leading to
@@ -321,6 +386,8 @@
 \end{frame}
 
 \begin{frame}{Queries (part I)}
+	(!)temporal logic formula
+	
 	Query is a property that may or may not hold for a given model. The Verifier can establish whether a Query is \textbf{satisfied} or \textbf{not}.\newline
 	Notation:
 	\begin{itemize}
@@ -328,6 +395,13 @@
 		\item $E<>$ - there exists a reachable state...
 	\end{itemize}
 	Simple queries are in form of $A[] e$ and $E<> e$ where $e$ is an expression build from \textbf{boolean combination} of \textbf{atomic propositions}.
+	
+	
+	• E<> p: there exists a path where p eventually holds.
+	• A[] p: for all paths p always holds.
+	• E[] p: there exists a path where p always holds.
+	• A<> p: for all paths p will eventually hold.
+	• p --> q: whenever p holds q will eventually hold.
 \end{frame}
 
 \begin{frame}{Queries (part II)}
@@ -352,12 +426,27 @@
 		\item $E<> (\text{Process\_1.C } \&\& \text{ Process\_2.C})$
 		\item $A[] \text{ now } >= \text{ 200 imply }$
 		$(\text{Belt.end } \&\& \text{ Jobber1.begin } \&\& \text{Jobber2.begin})$
+		\item $A[] \text{ Obs.taken imply } (x>=2 \text{ and } x<=3)$
+		\item $E<> \text{ Obs.idle and } x>2$
+		\item $A[] \text{ Obs.idle imply } x<=3$
 		
 	\end{itemize}
 \end{frame}
 
 \begin{frame}{Reasoning}
 	(!)The tool just uses brute force to explore all the reachable global states of the model and to check for each of these	states whether both jobbers are working on a hard job.
+	
+	
+	(!)Model checker engine. It can run in server mode on a more powerful, dedicated machine.
+
+	(!) 
+	More precisely, the engine uses on-the-fly verification combined with a symbolic technique reducing the verification problem to that of solving simple constraint systems [YPD94, LPY95]. The
+	verifier checks for simple invariants and reachability properties for efficiency reasons. Other properties may be checked by using testing automata [JLS96] or the decorated system with debugging
+	information [LPY97].
+	
+	(!)Then we can ask the verifier to check reachability properties, i.e., if a certain
+	state is reachable or not. This is called model-checking and it is basically an exhaustive search
+	that covers all possible dynamic behaviours of the system.
 \end{frame}
 
 \begin{frame}{Diagnostic traces}
@@ -369,13 +458,25 @@
 	(!)We choose under \textit{Options} the entry \textit{Diagnostic Trace} and then select the option \textit{Shortest}. Simulator will then show found diagnostic trace.
 \end{frame}
 
+\begin{frame}{Keeping model manageable}
+	To keep a model manageable, one has to pay attention to some points:
+	• The number of clocks has an important impact on the complexity, i.e., on the verification
+	time, since it highly influences the state space.
+	• The use of committed locations can reduce significantly the state space, but one has to be
+	careful with this feature because it can possibly take away relevant states.
+	• The number of variables plays an important role as well and more importantly their range.
+	One should be careful that the integer will not use all the values from -32000 to 32000 for
+	example. In particular avoid unbounded loops on integers since the values will then span
+	over the full range.
+\end{frame}
+
 \begin{frame}{Saving data}
-	We can save various data:
+	We can save various types of data:
 	
 	\begin{itemize}
-		\item Model/system - \textit{*.xml} file
-		\item Queries - \textit{*.q} file
-		\item Traces (binary) - \textit{*.xtr} file
+		\item Model/system - \textit{*.xml} file;
+		\item Queries - \textit{*.q} file;
+		\item Traces (binary) - \textit{*.xtr} file.
 	\end{itemize}
 \end{frame}
 
@@ -386,10 +487,12 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 \section{Bibliography}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
-\begin{itemize}
-	\item F.W. Vaandrager. A First Introduction to Uppaal. In J. Tretmans, editor. Quasimodo Handbook. To appear.
-\end{itemize}
 
-
+\begin{frame}
+	\begin{itemize}
+		\item F.W. Vaandrager. A First Introduction to Uppaal. In J. Tretmans, editor. Quasimodo Handbook. To appear.
+		\item Uppaal 4.0: Small Tutorial. A short description of the tool as well as some examples.
+	\end{itemize}
+\end{frame}
 
 \end{document}
