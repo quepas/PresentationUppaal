@@ -1,7 +1,5 @@
 \documentclass{beamer}
 
-\usepackage{multicol}
-
 \usetheme{Warsaw}
 
 \title{Uppaal. The Model Checker.}
@@ -194,10 +192,32 @@
 \begin{frame}{Process/automata}
 	Each automaton has at most one initial location, marked
 	by a double circle.
+	
+	(!)Deadlock - is when no further transitions are possible and therefore a deadlock state
+	has been reached.
 \end{frame}
 
 \begin{frame}{Location/state}
+	
+	If a location is Urgent then this means that time can not elapse within this
+	location, and hence a transition to another location will occur immediately.
+	
+	Each automaton has at most one initial location, marked
+	by a double circle.
+\end{frame}
 
+\begin{frame}{Parameters}
+	
+	Parameters can be declared to have either call-by-value or call-by-reference semantics, that is, a template may have access to either a local copy of the argument or to the original. The syntax is taken from C++, where the identifier of a call-by-reference parameter is prefixed with an ampersend in the parameter declaration. Clocks and channels must always be call-by-reference parameters.
+	
+	
+	Uppaal does not allow
+	data parameters for synchronization channels.
+	
+	In template paraemetrs field: urgent chan \&get, chan \&put.
+	When creating templates:
+	Hammer = Tool(get\_hammer, put\_hammer);
+	Mallet = Tool(get\_mallet, put\_mallet);
 \end{frame}
 
 \begin{frame}{System declaration}
@@ -206,10 +226,27 @@
 
 \begin{frame}{Edge/transition}
 	Choices for which the model does not specify how they are resolved are called
-	nondeterministic.
+	nondeterministic.\newline
+	
+	Without prior specification, transitions occur instantaneously and do not take time.\newline
+	
+	Transition have fields:
+	\begin{itemize}
+		\item Guard
+		\item Update
+	\end{itemize}
+	
+	In fields we can declare arrays, Boolean variables, define new ``record'' types and new functions.
+	
 \end{frame}
 
 \begin{frame}{Channels}
+	
+	Uppaal does not allow
+	data parameters for synchronization channels.
+	
+	When a synchronization channel is urgent, this means that whenever a synchronization with this channel is enabled, time can not advance and a transition has to be taken immediately.\newline
+	
 	In order to model the synchronization between tools and jobbers,
 	we use the notion of (synchronization) channels from Uppaal. Once “a” has been
 	declared as a channel, transitions can be labeled with either a! or a?. This can be
@@ -225,11 +262,62 @@
 \end{frame}
 
 \begin{frame}{Variables}
+	Global/local variables\newline
+	
+	Examples:\newline
+	
+	$\text{const int } J = 10;$\\
+	$ int[0,J] \text{ jobs}; // \text{ integer with min. value 0 and max. value J}$\newline
+	
+	The domain of integer is always bounded. By default $int$ has range $[-32768, 32768]$.\newline
+	
+	Variable assigned with a value outside of its domain generates ``run-time error''.\newline
+	
+	Transistion can have guards: expressions which use variables. Every transition have guard, by defualt they return \textbf{true}.\newline
+	
+	Uppaal does not support enumerated types.\newline
+	*
+	Arrays: const int[0,2] jobs[J] = {H,A,H,H,H,E,E,A,A,A};
+\end{frame}
+
+\begin{frame}{Expressions with variables}
+	All are C-like:
+	\begin{itemize}
+		\item jobs++
+		\item jobs = jobs + 1
+		\item jobs := jobs + 1
+	\end{itemize}
 	
 \end{frame}
 
-\begin{frame}{Verification}
+\begin{frame}{Time and clocks}
+	It allows to track:
+	\begin{itemize}
+		\item The ordering of events
+		\item How fast some events occur
+	\end{itemize}
+	
+	In Uppaal we can specify upper bounds on timing, using so-called “invariants”.
+	When we double click the location work easy, a window appears with a field In-variant.
+	
+	If we want to specify lower and upper bounds on the time that an automaton may
+	stay in a certain location, we can do this in Uppaal using so-called clocks. A clock
+	is a special type of variable, whose domain consists of the set of nonnegative real
+	numbers. Just like other variables, clocks can be declared either as a global variable
+	(which can be tested and updated by all automata) or as a local variable (which can
+	only be used by one automaton). In the initial state, all clocks have value 0. When
+	an automaton is waiting in a location and time elapses then the values of its clocks
+	increase. More precisely, when t time units pass then the values of all clocks in the
+	model increase with t. Thus, all clocks are “perfect” and increase at exactly the same
+	rate as real-time. In reality, of course, no clock is 100% perfect, but in our modeling
+	language it is convenient to use the idealization of perfect clocks to specify upper
+	and lower bounds on the timing of transitions.
+\end{frame}
 
+\begin{frame}{Verification}
+	
+	Whereas the Verifier has an option to compute the fastest execution leading to
+	a certain state, there is no corresponding option to compute the slowest execution.
 \end{frame}
 
 \begin{frame}{Queries (part I)}
@@ -262,6 +350,8 @@
 		\item $A[] \text{ not deadlock}$
 		\item $E<> \text{Process\_1.C}$
 		\item $E<> (\text{Process\_1.C } \&\& \text{ Process\_2.C})$
+		\item $A[] \text{ now } >= \text{ 200 imply }$
+		$(\text{Belt.end } \&\& \text{ Jobber1.begin } \&\& \text{Jobber2.begin})$
 		
 	\end{itemize}
 \end{frame}
@@ -292,5 +382,14 @@
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 \section{Example}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
+\section{Bibliography}
+%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+\begin{itemize}
+	\item F.W. Vaandrager. A First Introduction to Uppaal. In J. Tretmans, editor. Quasimodo Handbook. To appear.
+\end{itemize}
+
+
 
 \end{document}
