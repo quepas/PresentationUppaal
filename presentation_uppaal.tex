@@ -193,6 +193,8 @@
 	\end{columns}
 \end{frame}
 
+\subsubsection{Processes}
+
 \begin{frame}{Process/automata}
 	
 	Process is a timed-automata represent as diagram with states
@@ -210,8 +212,8 @@
 	
 	Using clocks we can specify:
 	\begin{itemize}
-		\item \textbf{Invariants} - upper bounds on timing, describes how long we can stay in given \textit{location};
-		\item \textbf{Guard} - lower bound on timing, describes after what amount of time a \textit{transition} can be executed.
+		\item \textbf{Invariants} - upper bounds on timing, describes how long we can stay in given \textit{location} (e.g. \textit{x $<=$ 5});
+		\item \textbf{Guard} - lower bound on timing, describes after what amount of time a \textit{transition} can be executed (e.g. \textit{x $>$ 2}).
 	\end{itemize}
 	
 	We can test the value of clock using standard expressions or we can reset clock.
@@ -241,7 +243,7 @@
 	An edge/transition connects two locations. Edges can have four types of annotations:
 	
 	\begin{itemize}
-		\item \textbf{Selection} - binds a given identifier to a value in a scope of current transition; allowed types: \textit{boundend integers}, \textit{scalar sets}; defined here identifiers will shadow local/global variables.
+		\item \textbf{Selection} - binds a given identifier to a random value in a scope of current transition; allowed types: \textit{boundend integers}, \textit{scalar sets}; defined here identifiers will shadow local/global variables.
 		\item \textbf{Guard} - transition is enabled only if guard's expression evaluates to \textbf{true} and consists of:
 		\begin{itemize}
 			\item Conjunction of simple conditions on clocks;
@@ -250,8 +252,7 @@
 		\end{itemize}
 		\item \textbf{Synchronization} - transition labelled with complementary actions (e.g. \textit{a!} and \textit{a?}) will synchronize over a common channel (here channel \textit{a})
 	\end{itemize}
-	%Now, remove the invariant and change the guard to x >= 2 and x <= 3. As you can see the system may take the same transitions as before, but there is now a deadlock: the system may be stuck if it does not take the transition after 3 time units.
-	
+
 \end{frame}
 
 \begin{frame}{Edge/transition (part II)}
@@ -296,26 +297,102 @@
 	\end{columns}
 \end{frame}
 
-\begin{frame}{Parameters}
-	
-	Template of process can have parameters with different call semantics (C++ syntax):
-	
-	\begin{itemize}
-		\item call-by-value (using local copy, e.g. \textit{int a})
-		\item call-by-reference (using original value, e.g. \textit{int\& a})
-	\end{itemize}
-	
-	Clocks and channels must always be call-by-reference parameters.
-	Uppaal does not allow data parameters for synchronization channels (?).
-	
-	In template parameters field: urgent chan \&get, chan \&put.
-	When creating templates:
-	Hammer = Tool(get\_hammer, put\_hammer);
-	Mallet = Tool(get\_mallet, put\_mallet);
+\begin{frame}{Location/transition - a thing to remember}
+	If not specified, \textit{locations} can wait \textbf{forever}, but \textit{transitions} will execute \textbf{immediately}.
 \end{frame}
 
-\begin{frame}{System declaration}
+\begin{frame}{Parameters of process template}
 	
+	Template of a process can have input parameters with different pass semantics (C++ syntax):
+	
+	\begin{itemize}
+		\item \textbf{pass-by-value} (using local copy, e.g. \textit{int a})
+		\item \textbf{pass-by-reference} (using original value, e.g. \textit{int\& a})
+	\end{itemize}
+	
+	Clocks and channels should be pass-by-reference parameters.\newline
+	
+	Examples:
+	\begin{itemize}
+		\item \textit{P(clock \&x, bool bit)}
+		\item \textit{Q(clock \&x, clock \&y, int i1, int \&i2, chan \&a, chan \&b)}
+	\end{itemize}
+	Creating such template: \textit{P0 = P(clock, true);}\newline
+	
+	This pass semantics are true also for functions' parameters.	
+\end{frame}
+
+\subsubsection{Declaration}
+
+\begin{frame}{Declarations}
+	Declarations can be global (in one place) or local (to a template). They mostly consist of programming statements and expressions with syntax similar to C++. Declarations mostly consist of:
+	
+	\begin{itemize}
+		\item Clocks (e.g. \textit{clock x, y;})
+		\item Bounded integers (e.g. \textit{int[0,100] a=5;})
+		\item Channels (e.g. \textit{chan d; urgent chan e;})
+		\item Arrays (e.g. \textit{int a[2][3] = \{\{1, 2, 3\}, \{4, 5, 6\}\}})
+		\item Records (e.g. \textit{struct \{int a; clock c;\} S;})
+		\item Types (e.g. \textit{typedef} keyword)
+		\item Functions
+	\end{itemize}
+\end{frame}
+
+\begin{frame}{Data types}
+	We have four predefined data types:
+	\begin{enumerate}
+		\item Integer (\textit{int}) - default value range is $[-32768, 32767]$;
+		\item Boolean (\textit{bool}) - \textbf{true} (1)/\textbf{false} (0) values;
+		\item Clock (\textit{clock}) - non-negative real values;
+		\item Channel (\textit{chan}) - with three subtypes: \textbf{normal}, \textbf{urgent} and/or \textbf{broadcast}.
+	\end{enumerate}
+	We can have \textbf{constant} integers, booleans and arrays/records over integers and booleans (e.g. \textit{const int i = 1;}).\newline
+	We can have these variables marked as \textbf{meta}, so that they are stored in the state vector, but they are not part of state. Meta variables won't affect state space exploration (e.g. \textit{meta bool edgeVisited[N\_EDGES];}, swapping variables).
+\end{frame}
+
+\begin{frame}[fragile]{Functions}
+	Almost identical to C++ like functions. Some simple examples:
+	\small
+	\begin{verbatim}
+		void initialize(int& a[10]) {
+		    for (i : int[0,9]) {
+		        a[i] = i;
+		    }
+		}
+	\end{verbatim}
+	
+	\begin{verbatim}
+	void swap(int &a, int &b) {
+	    int c = a;
+	    a = b;
+	    b = c;
+	}
+	\end{verbatim}
+	
+\end{frame}
+
+\begin{frame}[fragile]{System declaration}
+	We can define here global variables, channels and functions. They are not accessible in process templates because they are defined before them.
+	
+	First we instantiate processes then we create system. Examples:
+	
+	\tiny{
+	\begin{verbatim}
+	process ProcA() {}
+	process ProcB(int& x, bool b, int y) {}
+	(...)
+	// System declaration starts here!
+	int x = 5;
+	P0 = ProcA();
+	P1 = ProcB(x, true, 15);
+	// Partial instantiation
+	Q(int& z) = ProcB(x, true, z);
+	P2 = Q(10);
+	
+	system P0, P1, P2;
+	// Or with priorities
+	system P0 < P1 < P2;
+	\end{verbatim}}
 \end{frame}
 
 \begin{frame}{Channels}
