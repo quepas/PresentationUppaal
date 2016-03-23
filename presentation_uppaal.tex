@@ -169,19 +169,19 @@
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
-\subsection{System structure}
+\subsection{Model structure}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
 \begin{frame}{System/model/project}
 %We build so called system/model/project.
 	
 	\begin{columns}
 		\begin{column}{0.7\textwidth}
-			All systems consist of:	
+			Description of system consist of:	
 			\begin{itemize}
-				\item Global declaration for whole system;
-				\item Concurrent processes modelled using timed automata (here \textit{P0} and \textit{P1});
-				\item Local declaration for each process;
-				\item System description.
+				\item Concurrent process templates modelled using timed-automata (here \textit{P0} and \textit{P1});
+				\item Local declarations for each process;
+				\item Global declarations for whole system;
+				\item System definition.
 			\end{itemize}
 		\end{column}
 		
@@ -199,62 +199,56 @@
 	(called locations) and transitions between states (called edges). Timed-automata is finite state machine with time (clocks).\newline
 
 	Each process has only one \textbf{initial location}.\newline
+	
+	Processes execute concurrently and they can be synchronized using channels.\newline
 \end{frame}
 
-\begin{frame}{Time and clocks}
-	(!) Are the way to handle time in Uppaal. Time is continuous and the clocks measure time progress. It is allowed to test the value of a clock or to reset it. Time will progress globally at the same pace for the whole system. A system in Uppaal
+\begin{frame}{Time/clocks}
+	Time is continuous and the clocks measure time progress. Time progress globally and clocks values increase at the same rate for the whole system.\newline
 	
-	It allows to track:
+	A clock is a special type of variable with domain being a set of non-negative real numbers. At system start, all clocks have value 0.\newline
+	
+	Using clocks we can specify:
 	\begin{itemize}
-		\item The ordering of events
-		\item How fast some events occur
+		\item \textbf{Invariants} - upper bounds on timing, describes how long we can stay in given \textit{location};
+		\item \textbf{Guard} - lower bound on timing, describes after what amount of time a \textit{transition} can be executed.
 	\end{itemize}
 	
-	In Uppaal we can specify upper bounds on timing, using so-called “invariants”.
-	When we double click the location work easy, a window appears with a field In-variant.
-	
-	The invariant is a progress condition.
-	
-	If we want to specify lower and upper bounds on the time that an automaton may
-	stay in a certain location, we can do this in Uppaal using so-called clocks. A clock
-	is a special type of variable, whose domain consists of the set of non-negative real
-	numbers. Just like other variables, clocks can be declared either as a global variable
-	(which can be tested and updated by all automata) or as a local variable (which can
-	only be used by one automaton). In the initial state, all clocks have value 0. When
-	an automaton is waiting in a location and time elapses then the values of its clocks
-	increase. More precisely, when t time units pass then the values of all clocks in the
-	model increase with t. Thus, all clocks are “perfect” and increase at exactly the same
-	rate as real-time. In reality, of course, no clock is 100% perfect, but in our modeling
-	language it is convenient to use the idealization of perfect clocks to specify upper
-	and lower bounds on the timing of transitions.
+	We can test the value of clock using standard expressions or we can reset clock.
 \end{frame}
 
-\begin{frame}{Location/state}
+\begin{frame}{Location/state (part I)}
 	\begin{figure}[H]
 		\includegraphics[scale=1]{img/uppaal_locations.png}
 	\end{figure}
 	
 	Location represents state of the system. There are four types of locations:
 	\begin{itemize}
-		\item Initial (at most one initial location in each automaton);
+		\item Initial (one for each process);
 		\item Normal (with or without \textbf{invariants});
 		\item Urgent (time cannot elapse in this location, so transition to another location must occur \textbf{immediately});
 		\item Committed.
 	\end{itemize}
 \end{frame}
 
+\begin{frame}{Location/state (part II)}
+		\begin{figure}[H]
+			\includegraphics[scale=0.8]{img/todo_location_types.png}
+		\end{figure}
+\end{frame}
+
 \begin{frame}{Edge/transition (part I)}
 	An edge/transition connects two locations. Edges can have four types of annotations:
 	
 	\begin{itemize}
-		\item Selection - binds a given identifier to a value in a given range; allowed types: \textit{boundend integers}, \textit{scalar sets}; defined here identifiers will shadow local/global variables.
-		\item Guard - transition is enabled only if guard's expression evaluates to \textbf{true} and consists of:
+		\item \textbf{Selection} - binds a given identifier to a value in a scope of current transition; allowed types: \textit{boundend integers}, \textit{scalar sets}; defined here identifiers will shadow local/global variables.
+		\item \textbf{Guard} - transition is enabled only if guard's expression evaluates to \textbf{true} and consists of:
 		\begin{itemize}
 			\item Conjunction of simple conditions on clocks;
 			\item Differences between clocks;
 			\item Boolean expressions not involving clocks.
 		\end{itemize}
-		\item Synchronization - transition labelled with complementary actions (e.g. \textit{a!} and \textit{a?}) will synchronize over a common channel (here channel \textit{a})
+		\item \textbf{Synchronization} - transition labelled with complementary actions (e.g. \textit{a!} and \textit{a?}) will synchronize over a common channel (here channel \textit{a})
 	\end{itemize}
 	%Now, remove the invariant and change the guard to x >= 2 and x <= 3. As you can see the system may take the same transitions as before, but there is now a deadlock: the system may be stuck if it does not take the transition after 3 time units.
 	
@@ -262,7 +256,7 @@
 
 \begin{frame}{Edge/transition (part II)}
 	\begin{itemize}
-		\item Update - evaluate given expression when transition occur.
+		\item \textbf{Update} - evaluate given expression when transition occur.
 	\end{itemize}	
 	
 	\begin{figure}[H]
@@ -289,14 +283,14 @@
 			\begin{figure}[H]
 				\label{img:ndc}
 				\includegraphics[scale=0.7]{img/uppaal_non_deterministic_choice.png}
-				\caption{Non-deterministic choice}
+				\caption{Non-deterministic choice.}
 			\end{figure}
 		\end{column}
 		\begin{column}{.5\textwidth}
 			\begin{figure}[H]
 				\label{img:dc}
 				\includegraphics[scale=0.7]{img/uppaal_deterministic_choice.png}
-				\caption{Deterministic choice}
+				\caption{Deterministic choice.}
 			\end{figure}
 		\end{column}		
 	\end{columns}
@@ -385,27 +379,23 @@
 	a certain state, there is no corresponding option to compute the slowest execution.
 \end{frame}
 
-\begin{frame}{Queries (part I)}
-	(!)temporal logic formula
-	
-	Query is a property that may or may not hold for a given model. The Verifier can establish whether a Query is \textbf{satisfied} or \textbf{not}.\newline
-	Notation:
+\begin{frame}{Queries (part I)}	
+	Query is a property expressed as temporal logic formula, that may or may not hold for a given model. The Verifier can establish whether a Query is \textbf{satisfied} or \textbf{not}.\newline
+	Basic queries:
 	\begin{itemize}
-		\item $A[]$ - for all reachable states...
-		\item $E<>$ - there exists a reachable state...
+		\item \textit{A[] p} : for all paths \textit{p} \textbf{always holds};
+		\item \textit{E[] p} : there exists a path where \textit{p} \textbf{always holds};		
+		\item \textit{A$<>$ p} : for all paths \textit{p} will \textbf{eventually hold};
+		\item \textit{E$<>$ p} : there exists a path where \textit{p} \textbf{eventually holds};
+		\item \textit{p --$>$ q} : whenever p holds q will eventually hold.
+
 	\end{itemize}
-	Simple queries are in form of $A[] e$ and $E<> e$ where $e$ is an expression build from \textbf{boolean combination} of \textbf{atomic propositions}.
 	
-	
-	• E<> p: there exists a path where p eventually holds.
-	• A[] p: for all paths p always holds.
-	• E[] p: there exists a path where p always holds.
-	• A<> p: for all paths p will eventually hold.
-	• p --> q: whenever p holds q will eventually hold.
+	Simple queries are in form of e.g \textit{A[] p} where \textit{p} is an expression build from \textbf{boolean combination} of \textbf{atomic propositions}.
 \end{frame}
 
 \begin{frame}{Queries (part II)}
-	Atomic propositions can be of the form $A.c$, for $A$ an automaton and $c$ a location. Such a proposition is true in a global state of the model if in this state automaton $A$ is in location $c$.\newline
+	The simplest atomic proposition can be of the form \textit{P0.C}, where \textit{P0} is an automaton and \textit{C} is a location. Such a proposition is \textbf{true} if process \textit{P0} is in location \textit{C}.\newline
 	
 	\begin{tabular}{|c|c|c|}
 		\hline \textbf{Expression} & \textbf{Name} & \textbf{True when...} \\ 
@@ -419,7 +409,7 @@
 
 \end{frame}
 
-\begin{frame}{Query examples}
+\begin{frame}{Queries (part III)}
 	\begin{itemize}
 		\item $A[] \text{ not deadlock}$
 		\item $E<> \text{Process\_1.C}$
@@ -458,18 +448,6 @@
 	(!)We choose under \textit{Options} the entry \textit{Diagnostic Trace} and then select the option \textit{Shortest}. Simulator will then show found diagnostic trace.
 \end{frame}
 
-\begin{frame}{Keeping model manageable}
-	To keep a model manageable, one has to pay attention to some points:
-	• The number of clocks has an important impact on the complexity, i.e., on the verification
-	time, since it highly influences the state space.
-	• The use of committed locations can reduce significantly the state space, but one has to be
-	careful with this feature because it can possibly take away relevant states.
-	• The number of variables plays an important role as well and more importantly their range.
-	One should be careful that the integer will not use all the values from -32000 to 32000 for
-	example. In particular avoid unbounded loops on integers since the values will then span
-	over the full range.
-\end{frame}
-
 \begin{frame}{Saving data}
 	We can save various types of data:
 	
@@ -480,9 +458,27 @@
 	\end{itemize}
 \end{frame}
 
+\begin{frame}{Keeping models manageable}
+	\begin{itemize}
+		\item Committed locations - reduce significantly the state space, but on the other hand they can take away relevant states;
+		\item Variables and its ranges - use small amount of variables with the shortest value ranges;
+		\item Clocks - has an important impact on the complexity of the model.
+	\end{itemize}
+\end{frame}
+
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 \section{Example}
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%
+
+\begin{frame}{Examples}
+	\begin{enumerate}
+		\item First automata, deterministic and non-deterministic choices.
+		\item Location types.
+		\item Simple synchronization.
+		\item Guards and invariants.
+		\item BIG! Production line.
+	\end{enumerate}
+\end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
 \section{Bibliography}
@@ -490,8 +486,9 @@
 
 \begin{frame}
 	\begin{itemize}
-		\item F.W. Vaandrager. A First Introduction to Uppaal. In J. Tretmans, editor. Quasimodo Handbook. To appear.
-		\item Uppaal 4.0: Small Tutorial. A short description of the tool as well as some examples.
+		\item F.W. Vaandrager. \textit{``A First Introduction to Uppaal''} In J. Tretmans, editor. Quasimodo Handbook. To appear.
+		\item \textit{Uppaal 4.0: Small Tutorial. A short description of the tool as well as some examples.}
+		\item \textit{Uppaal Help/Documentation}. Built-in. Uppaal 4.0.14, May 2014.
 	\end{itemize}
 \end{frame}
 
