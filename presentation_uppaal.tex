@@ -80,6 +80,24 @@
 		\item Academic use (more info: \href{http://www.uppaal.org/}{http://www.uppaal.org/})
 		\item Commercial use (more info: \href{http://www.uppaal.com/}{http://www.uppaal.com/})
 	\end{itemize}
+	
+	Uppaal GUI was programmed in Java, and Uppaal checking engine was developed using C++.
+\end{frame}
+
+\begin{frame}{Extensions}
+	
+	\begin{itemize}
+		\item \textbf{Cora} - Cost Optimal Reachability Analysis;
+		\item \textbf{Tron} - Testing Real-time systems ON-line (black-box conformance testing);
+		\item \textbf{Cover} - COVERerage-optimal off-line test generation;
+		\item \textbf{Tiga} - TImed GAmes based controller synthesis;
+		\item \textbf{Port} - component based timed systems, exploiting Partial Order Reduction Techniques;
+		\item \textbf{Pro} - PRObabilistic reachability analysis;
+		\item \textbf{Times} - A Tool for Modelling and Implementation of Embedded Systems;
+		\item \textbf{Stratego} - Strategy synthesis, learning, optimization and evaluation;
+		\item \textbf{SMC} - Statistical Model-Checker.
+	\end{itemize}
+	
 \end{frame}
 
 %%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%%	
@@ -206,7 +224,7 @@
 \end{frame}
 
 \begin{frame}{Time/clocks}
-	Time is continuous and the clocks measure time progress. Time progress globally and clocks values increase at the same rate for the whole system.\newline
+	Time is continuous and the clocks measure time progress. \textbf{Time progress globally} and clocks values \textbf{increase at the same rate} for the whole system.\newline
 	
 	A clock is a special type of variable with domain being a set of non-negative real numbers. At system start, all clocks have value 0.\newline
 	
@@ -226,17 +244,11 @@
 	
 	Location represents state of the system. There are four types of locations:
 	\begin{itemize}
-		\item Initial (one for each process);
-		\item Normal (with or without \textbf{invariants});
-		\item Urgent (time cannot elapse in this location, so transition to another location must occur \textbf{immediately});
-		\item Committed.
+		\item \textbf{Initial} (one for each process);
+		\item \textbf{Normal} (with or without \textbf{invariants});
+		\item \textbf{Urgent} (time cannot elapse in this location, so transition to another location must occur \textbf{immediately});
+		\item \textbf{Committed} (they freeze time, if any process is in committed location then the next transition must involve and edge from one of the committed locations).
 	\end{itemize}
-\end{frame}
-
-\begin{frame}{Location/state (part II)}
-		\begin{figure}[H]
-			\includegraphics[scale=0.8]{img/todo_location_types.png}
-		\end{figure}
 \end{frame}
 
 \begin{frame}{Edge/transition (part I)}
@@ -273,12 +285,13 @@
 \end{frame}
 
 \begin{frame}{Edge/transition (part III)}
-	Without prior specification, all transitions occur instantaneously and do not take time.\newline
-	
-	When no further transition is possible we reach so called \textbf{deadlock state}.\newline
-	
-	Unspecified choice is called non-deterministic:\newline
-	\vspace{-8mm}
+	\vspace{-2mm}
+	\begin{itemize}
+		\item Without prior specification, \textbf{all transitions occur instantaneously} and do not take time (they have default guard which always evaluate to \textbf{true});
+		\item When no further transition is possible we reach so called \textbf{deadlock state};
+		\item Unspecified choice is called non-deterministic (look at figures below).
+	\end{itemize}
+	\vspace{-7mm}	
 	\begin{columns}
 		\begin{column}{.5\textwidth}
 			\begin{figure}[H]
@@ -303,7 +316,7 @@
 
 \begin{frame}{Parameters of process template}
 	
-	Template of a process can have input parameters with different pass semantics (C++ syntax):
+	Template of a process can have input parameters with different pass semantics (C++ syntax \& semantic):
 	
 	\begin{itemize}
 		\item \textbf{pass-by-value} (using local copy, e.g. \textit{int a})
@@ -326,7 +339,6 @@
 
 \begin{frame}{Declarations}
 	Declarations can be global (in one place) or local (to a template). They mostly consist of programming statements and expressions with syntax similar to C++. Declarations mostly consist of:
-	
 	\begin{itemize}
 		\item Clocks (e.g. \textit{clock x, y;})
 		\item Bounded integers (e.g. \textit{int[0,100] a=5;})
@@ -336,9 +348,10 @@
 		\item Types (e.g. \textit{typedef} keyword)
 		\item Functions
 	\end{itemize}
+	Uppaal does not support enumerated types.
 \end{frame}
 
-\begin{frame}{Data types}
+\begin{frame}{Data types (part I)}
 	We have four predefined data types:
 	\begin{enumerate}
 		\item Integer (\textit{int}) - default value range is $[-32768, 32767]$;
@@ -346,8 +359,15 @@
 		\item Clock (\textit{clock}) - non-negative real values;
 		\item Channel (\textit{chan}) - with three subtypes: \textbf{normal}, \textbf{urgent} and/or \textbf{broadcast}.
 	\end{enumerate}
-	We can have \textbf{constant} integers, booleans and arrays/records over integers and booleans (e.g. \textit{const int i = 1;}).\newline
-	We can have these variables marked as \textbf{meta}, so that they are stored in the state vector, but they are not part of state. Meta variables won't affect state space exploration (e.g. \textit{meta bool edgeVisited[N\_EDGES];}, swapping variables).
+\end{frame}
+
+\begin{frame}{Data types (part II)}
+	\begin{itemize}
+		\item We can have \textbf{constant} integers, booleans and arrays/records over integers and booleans (e.g. \textit{const int i = 1;}).
+		\item We can have these variables marked as \textbf{meta}, so that they are stored in the state vector, but they are not part of state. Meta variables won't affect state a space exploration \\ (e.g. \textit{meta bool edgeVisited[N\_EDGES];} or for swapping variables).
+		\item Variable assigned with a value outside of its domain generates ``run-time error''.
+	\end{itemize}
+
 \end{frame}
 
 \begin{frame}[fragile]{Functions}
@@ -395,69 +415,40 @@
 	\end{verbatim}}
 \end{frame}
 
-\begin{frame}{Channels}
-	(!)  Uppaal offers urgent channels (defined using urgent chan) that are synchronization that must be taken when the transition is enabled, without delay. Clock conditions on these transitions are not allowed.
+\begin{frame}{Synchronization and channels}
+	In Uppaal there is a hand-shaking synchronization: two processes take a transition at the same time, only when one will have an \textit{\textbf{a!}} (emit) and the other an \textit{\textbf{a?}} (receive), where \textit{\textbf{a}} is a channel used.\newline
 	
-	(!) There is no value passing through the channels
+	First the \textbf{update expression} is executed on transition synchronized on \textit{\textbf{a!}} then on other transition annotated with \textit{\textbf{a?}}.
 	
-	(!)The synchronization mechanism in Uppaal is a hand-shaking synchronization: two processes take a transition at the same time, one will have an a! and the other an a?, with a being the synchronization channel. When taking a transition, two actions are possible: assignment of variables or reset of clocks. 
+	We have three types of channels:
+	\begin{enumerate}
+		\item \textbf{Binary/Normal};
+		\item \textbf{Broadcast} - allows 1-to-many synchronization.
+		\item \textbf{Urgent} - source state can't delay triggering a synchronized transition, it must be triggered instantly when possible; clock conditions on these transitions are not allowed;
+	\end{enumerate}
 	
-	Uppaal does not allow
-	data parameters for synchronization channels.
-	
-	When a synchronization channel is urgent, this means that whenever a synchronization with this channel is enabled, time can not advance and a transition has to be taken immediately.\newline
-	
-	In order to model the synchronization between tools and jobbers,
-	we use the notion of (synchronization) channels from Uppaal. Once “a” has been
-	declared as a channel, transitions can be labelled with either a! or a?. This can be
-	done by double clicking (within the Editor) transitions with the Select tool, and then
-	writing a! or a? in the Sync field. When two automata synchronize on channel “a”,
-	this means that an a! transition of one automaton occurs simultaneously with an
-	a? transition of another automaton. An a! or a? transition can never occur on its
-	own: a! always has to synchronize with a?, and vice versa. If there is one automaton
-	S that can do an a! but two automata R1 and R2 that can do an a?, then there is
-	a non-deterministic choice and S can synchronize with either R1 or R2. The other
-	automaton has do something else or has to wait until the next a! synchronization
-	will be offered.
-\end{frame}
-
-\begin{frame}{Variables}
-	Global/local variables\newline
-	
-	Examples:\newline
-	
-	$\text{const int } J = 10;$\\
-	$ int[0,J] \text{ jobs}; // \text{ integer with min. value 0 and max. value J}$\newline
-	
-	The domain of integer is always bounded. By default $int$ has range $[-32768, 32768]$.\newline
-	
-	Variable assigned with a value outside of its domain generates ``run-time error''.\newline
-	
-	Transition can have guards: expressions which use variables. Every transition have guard, by default they return \textbf{true}.\newline
-	
-	Uppaal does not support enumerated types.\newline
-	*
-	Arrays: const int[0,2] jobs[J] = {H,A,H,H,H,E,E,A,A,A};
-\end{frame}
-
-\begin{frame}{Expressions with variables}
-	All are C-like:
-	\begin{itemize}
-		\item jobs++
-		\item jobs = jobs + 1
-		\item jobs := jobs + 1
-	\end{itemize}
+	There is no value passing through the channels.
 	
 \end{frame}
 
-\begin{frame}{Verification}
+\begin{frame}[fragile]{Priorities}
+	Channels and processes can have specified priorities. Examples for channels:
 	
-	Whereas the Verifier has an option to compute the fastest execution leading to
-	a certain state, there is no corresponding option to compute the slowest execution.
+	\begin{verbatim}
+		chan priority a, b < default < c;
+	\end{verbatim}
+	
+	Processes priorities are specified in system declaration:
+	
+	\begin{verbatim}
+		system P0 < P1 < P2, P3;
+	\end{verbatim}
 \end{frame}
 
-\begin{frame}{Queries (part I)}	
-	Query is a property expressed as temporal logic formula, that may or may not hold for a given model. The Verifier can establish whether a Query is \textbf{satisfied} or \textbf{not}.\newline
+\subsubsection{Queries}
+
+\begin{frame}{Queries (part IA)}	
+	Query describe a property expressed as temporal logic formula, that may or may not hold for a given model. The Verifier can establish whether the query is \textbf{satisfied} or \textbf{not}.\newline
 	Basic queries:
 	\begin{itemize}
 		\item \textit{A[] p} : for all paths \textit{p} \textbf{always holds};
@@ -469,6 +460,19 @@
 	\end{itemize}
 	
 	Simple queries are in form of e.g \textit{A[] p} where \textit{p} is an expression build from \textbf{boolean combination} of \textbf{atomic propositions}.
+\end{frame}
+
+\begin{frame}{Queries (part IB)}
+	Property equivalences:
+	\begin{tabular}{|c|c|c|}
+		\hline \textbf{Name} & \textbf{Property} &\textbf{ Equivalent to }\\ 
+		\hline Possibly & \textit{E$<>$ p} &  \\ 
+		\hline Invariantly & \textit{A[] p}  & \textit{not E$<>$ not p} \\ 
+		\hline Potentially always &	\textit{E[] p}  &  \\ 
+		\hline Eventually & \textit{A$<>$ p} & \textit{not E[] not p} \\ 
+		\hline Leads to & \textit{p --$>$ q} & \textit{A[] (p imply A$<>$ q)} \\ 
+		\hline 
+	\end{tabular} 
 \end{frame}
 
 \begin{frame}{Queries (part II)}
@@ -500,30 +504,22 @@
 	\end{itemize}
 \end{frame}
 
-\begin{frame}{Reasoning}
-	(!)The tool just uses brute force to explore all the reachable global states of the model and to check for each of these	states whether both jobbers are working on a hard job.
-	
-	
-	(!)Model checker engine. It can run in server mode on a more powerful, dedicated machine.
+\begin{frame}{Reasoning (part I)}
+	The checking engine do an exhaustive search	that covers all possible dynamic behaviours of the system in order to check specification properties described in form of queries.\newline
 
-	(!) 
-	More precisely, the engine uses on-the-fly verification combined with a symbolic technique reducing the verification problem to that of solving simple constraint systems [YPD94, LPY95]. The
-	verifier checks for simple invariants and reachability properties for efficiency reasons. Other properties may be checked by using testing automata [JLS96] or the decorated system with debugging
-	information [LPY97].
+
+	``More precisely, the engine uses \textbf{on-the-fly verification} combined with a \textbf{symbolic technique reducing the verification problem} to that of \textbf{solving simple constraint systems} [YPD94, LPY95]. The verifier checks for simple invariants and reachability properties for efficiency reasons. Other properties may be checked by using testing automata [JLS96] or the decorated system with debugging	information [LPY97].'' (\textit{Uppaal 4.0 : Small Tutorial})
 	
-	(!)Then we can ask the verifier to check reachability properties, i.e., if a certain
-	state is reachable or not. This is called model-checking and it is basically an exhaustive search
-	that covers all possible dynamic behaviours of the system.
 \end{frame}
 
-\begin{frame}{Diagnostic traces}
+\begin{frame}{Reasoning (part II)}
+	Uppaal provide a concrete example illustrating why the property holds (for \textit{E$<>$} properties) or not (for \textit{A[]} properties, so called: \textit{counterexample}).\newline
+		
+	In the case of \textit{E$<>$} properties that do not hold, or \textit{A[]} properties that hold, Uppaal can only report that it exhaustively checked all the reachable states of the model and didn't find anything.\newline
 	
-	(!)Uppaal can also provide a concrete example that illustrates why the property holds (for $E<>$ properties) or not (for $A[]$ properties, so called: \textit{counterexample}).\newline
-	
-	(!)In the case of $E<>$ properties that do not hold, or $A[]$ properties that hold, Uppaal can only report that it exhaustively checked all the reachable states of the model and didn’t find anything.\newline
-	
-	(!)We choose under \textit{Options} the entry \textit{Diagnostic Trace} and then select the option \textit{Shortest}. Simulator will then show found diagnostic trace.
+	It is worth to point out that model checker engine can run in \textbf{server mode} on a more powerful, dedicated machine.
 \end{frame}
+
 
 \begin{frame}{Saving data}
 	We can save various types of data:
@@ -537,9 +533,9 @@
 
 \begin{frame}{Keeping models manageable}
 	\begin{itemize}
-		\item Committed locations - reduce significantly the state space, but on the other hand they can take away relevant states;
-		\item Variables and its ranges - use small amount of variables with the shortest value ranges;
-		\item Clocks - has an important impact on the complexity of the model.
+		\item \textbf{Committed locations} - reduce significantly the state space, but on the other hand they can take away relevant states;
+		\item \textbf{Variables with ranges} - use small amount of variables with the shortest value ranges possible;
+		\item \textbf{Minimum amount of clocks} - has an important impact on the complexity of the model.
 	\end{itemize}
 \end{frame}
 
@@ -549,11 +545,9 @@
 
 \begin{frame}{Examples}
 	\begin{enumerate}
-		\item First automata, deterministic and non-deterministic choices.
-		\item Location types.
-		\item Simple synchronization.
-		\item Guards and invariants.
-		\item BIG! Production line.
+		\item Non-deterministic process with synchronization (with one and two loops);
+		\item Taken-idle with loop;
+		\item Production line.
 	\end{enumerate}
 \end{frame}
 
